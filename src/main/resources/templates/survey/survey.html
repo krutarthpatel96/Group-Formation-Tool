@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="https://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+>
+	<head>
+		<title>CSCI5308 - Group Formation Tool</title>
+	</head>
+	<body>
+		<!-- I got the idea for how to do this from https://www.thymeleaf.org/doc/articles/springsecurity.html -->
+		<div sec:authorize="isAuthenticated()">
+			<h4 th:inline="text">BannerID: [[${#httpServletRequest.remoteUser}]]</h4>
+			<form th:action="@{/logout}" method="post">
+				<input type="submit" value="Sign Out"/>
+			</form>
+		</div>
+		<p>
+			<label>Student Survey</label>
+		</p>
+		
+		<form th:action="@{/survey/response/submit}" th:object="${responses}" method="post">			
+			<input type="hidden" th:field="${responses.bannerId}">
+			<input type="hidden" th:field="${responses.courseId}">
+			<div th:each="ques, questionIndex : ${questions.question}">
+				<input type="hidden" th:field="${responses.responses[__${questionIndex.index}__].question.id}">
+				<input type="hidden" th:field="${responses.responses[__${questionIndex.index}__].question.text}">
+				<input type="hidden" th:field="${responses.responses[__${questionIndex.index}__].question.title}">
+				<input type="hidden" th:field="${responses.responses[__${questionIndex.index}__].question.type}">
+				<input type="hidden" th:field="${responses.responses[__${questionIndex.index}__].question.timestamp}">
+				<input type="hidden" th:field="${responses.responses[__${questionIndex.index}__].question.timestamp}">
+			
+				<br/>
+				<label>Question </label>
+				<label th:text="${questionIndex.index + 1}"></label>
+				<label>-</label>
+				<label><b><span th:text="${ques.title}"></span></b></label><br>
+				<label><span th:text="${ques.text}"></span></label><br>
+				<div th:if="${ques.type.toString()}=='Text'">
+					<textarea id="freeText" rows="4" cols="50" 
+							th:field="${responses.responses[__${questionIndex.index}__].text}" required></textarea>
+				</div>
+			      
+				<div th:if="${ques.type.toString()}=='Numeric'">
+					<input type="number" name="answer" size="2" 
+							th:field="${responses.responses[__${questionIndex.index}__].text}" required>
+				</div>
+			
+				<div th:if="${ques.type.toString()}=='MCQOne'">
+					<select th:field="${responses.responses[__${questionIndex.index}__].text}" required>
+						<div th:each="option: ${questions.option[__${questionIndex.index}__]}">
+							<option th:each="optionValue, optionIndex: ${option.optionList}"
+                                th:text="${optionValue.text}"
+                                th:value="${optionValue.id}">
+							</option>
+						</div>
+					</select>
+				</div>
+				<div th:if="${ques.type.toString()}=='MCQMultiple'">
+					<div th:each="option: ${questions.option[__${questionIndex.index}__]}">
+						<div th:each="optionValue: ${option.optionList}">
+							<input type="checkbox"
+								th:field="${responses.responses[__${questionIndex.index}__].text}"
+                                th:value="${optionValue.id}">
+							<label th:text="${optionValue.text}"></label>
+						</div>
+					</div>
+				</div>						
+			</div>
+			<input type="submit" value="SAVE"/>
+		</form>
+	</body>
+</html>

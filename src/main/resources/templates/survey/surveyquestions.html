@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+		<title>CSCI5308 - Group Formation Tool</title>
+</head>
+<body>
+		<!-- I got the idea for how to do this from https://www.thymeleaf.org/doc/articles/springsecurity.html -->
+	  	<div sec:authorize="isAuthenticated()">
+	       <h4 th:inline="text">BannerID: [[${#httpServletRequest.remoteUser}]]</h4>
+	       <form th:action="@{/logout}" method="post">
+	           <input type="submit" value="Sign Out"/>
+	       </form>
+		</div>
+		<div th:if="${addStatus}">
+			<label>Question Added!</label>
+		</div>
+		<div>
+			<form th:action="@{/survey/question/toggle}" method="POST">		        
+		    	<input type="hidden" name="courseID" id="courseID" th:value="${courseID}" />
+		    	<input type="hidden" name="bannerID" id="bannerID" th:value="${#httpServletRequest.remoteUser}" />
+		    	<div th:if="${surveyStatus == 1}">
+		    		<input type="hidden" name="status" id="status" th:value="0" />
+		    		<button type="submit" >Disable</button>
+		    	</div>
+		    	<div th:unless="${surveyStatus == 1}">
+		    		<input type="hidden" name="status" id="status" th:value="1" />
+		    		<button type="submit" >Enable</button>
+		    	</div>
+			    
+		    </form>
+		</div>
+		<p>
+			<label>Survey Questions:</label>
+		</p>
+		<table border="1">
+			<thead>
+				<tr>
+				<th>Question ID</th>
+				<th>Title</th>
+				<th>Text</th>
+				<th>Type</th>
+				<th>Created</th>
+				<th th:if="${surveyStatus}">Action</th>
+				</tr>
+			    <tr th:each="val: ${surveyQuestionList}">
+				    <td>
+				    	<span th:text="${val.id}"></span>
+				    </td>
+				    <td>
+				    	<span th:text="${val.title}"></span>
+				    </td>
+				    <td>
+				    	<span th:text="${val.text}"></span>
+				    </td>
+				    <td>
+				    	<span th:text="${val.type}"></span>
+				    </td>
+				    <td>
+				    	<span th:text="${val.timestamp}"></span>
+				    </td>
+				    <td th:if="${surveyStatus}">
+				        <form th:action="@{/survey/question/delete}" method="POST">		        
+					    	<input type="hidden" name="questionID" id="questionID" th:value="${val.id}" />
+					    	<input type="hidden" name="courseID" id="courseID" th:value="${courseID}" />
+					    	<input type="hidden" name="bannerID" id="bannerID" th:value="${#httpServletRequest.remoteUser}" />
+						    <button onclick="return confirm('Are you sure you want to remove this question from the survey?')" type="submit" >Remove</button>
+					    </form>
+			        </td>
+			    <tr>
+		</table>
+		<div th:if="${surveyStatus}">
+			<p>
+				<label>Instructor Questions:</label>
+			</p>
+			<table border="1">
+				<thead>
+					<tr>
+					<th>Question ID</th>
+					<th>Title</th>
+					<th>Text</th>
+					<th>Type</th>
+					<th>Created</th>
+					<th>Action</th>
+					</tr>
+				    <tr th:each="val: ${instructorQuestionList}">
+					    <td>
+					    	<span th:text="${val.id}"></span>
+					    </td>
+					    <td>
+					    	<span th:text="${val.title}"></span>
+					    </td>
+					    <td>
+					    	<span th:text="${val.text}"></span>
+					    </td>
+					    <td>
+					    	<span th:text="${val.type}"></span>
+					    </td>
+					    <td>
+					    	<span th:text="${val.timestamp}"></span>
+					    </td>
+					    <td>
+					        <form th:action="@{/survey/question/add}" method="POST">		        
+						    	<input type="hidden" name="questionID" id="questionID" th:value="${val.id}" />
+						    	<input type="hidden" name="courseID" id="courseID" th:value="${courseID}" />
+						    	<input type="hidden" name="bannerID" id="bannerID" th:value="${#httpServletRequest.remoteUser}" />
+							    <button type="submit" >Add</button>
+						    </form>
+				        </td>
+				    <tr>
+				</table>
+			</div>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>CSCI5308 - Group Formation Tool</title>
+</head>
+<body>
+	<!-- I got the idea for how to do this from https://www.thymeleaf.org/doc/articles/springsecurity.html -->
+	<div sec:authorize="isAuthenticated()">
+		<h4 th:inline="text">BannerID:
+			[[${#httpServletRequest.remoteUser}]]</h4>
+		<form th:action="@{/logout}" method="post">
+			<input type="submit" value="Sign Out" />
+		</form>
+	</div>
+
+	<form th:action="@{/survey/group/submit}" th:object="${criteria}"
+		method="post">
+		<p>
+			<label>Group size: </label>
+		</p>
+		<input type="number" name="size" size="2"
+			th:field="${criteria.groupSize}" required>
+		<p>
+			<label>Survey Questions:</label>
+		</p>
+		<table border="1">
+			<thead>
+				<tr>
+					<th>Question ID</th>
+					<th>Title</th>
+					<th>Text</th>
+					<th>Type</th>
+					<th>Created</th>
+					<th>Weight</th>
+					<th>Type</th>
+				</tr>
+				<tr th:each="val, index : ${surveyQuestionList}">
+					<td><span th:text="${val.id}" th:value="${val.id}"></span> <input
+						type="hidden" th:value="${val.id}"
+						th:field="${criteria.questionId[__${index.index}__]}" /></td>
+					<td><span th:text="${val.title}"></span></td>
+					<td><span th:text="${val.text}"></span></td>
+					<td><span th:text="${val.type}"></span></td>
+					<td><span th:text="${val.timestamp}"></span></td>
+					<td><input type="number" name="answer" size="2"
+						th:field="${criteria.weight[__${index.index}__]}" required>
+					</td>
+					<td><select
+						th:field="${criteria.criteria[__${index.index}__]}" required>
+							<option th:text="Similar" th:value="Similar"></option>
+							<option th:text="Dissimilar" th:value="Dissimilar"></option>
+					</select></td>
+				<tr>
+		</table>
+		<input type="hidden" name="courseID" id="courseID"
+			th:value="${courseID}" /> <input type="submit" value="SAVE" />
+	</form>
+</body>
+</html>
